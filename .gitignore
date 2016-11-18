@@ -1,0 +1,14 @@
+# Ignore eclipse files
+.cproject
+.project
+.settings
+
+# Ignore build files
+objs
+lib
+turma-piloto_msp430.elf
+turma-piloto_msp430.hex
+turma-piloto_tests
+
+# Ignore CppUTest
+cpputest
