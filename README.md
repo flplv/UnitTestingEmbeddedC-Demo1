@@ -1,4 +1,4 @@
-<!-- # Project Files organizaiton # -->
+<!-- # Project Files organization # -->
 
 ## Directories ##
 
