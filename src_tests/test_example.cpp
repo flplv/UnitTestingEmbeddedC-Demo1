@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
 
 /*
  * Basic testing guideline:
@@ -16,6 +17,7 @@ TEST_GROUP(FirstTestGroup)
 
     void teardown ()
     {
+        mock().clear();
     }
 };
 

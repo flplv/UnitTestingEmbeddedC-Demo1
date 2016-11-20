@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
 
 extern "C"
 {
@@ -30,6 +31,7 @@ TEST_GROUP(TestHacker)
         ring_fifo_deinit(&fifo_src);
         ring_fifo_deinit(&fifo_dest);
         log_mock_clear();
+        mock().clear();
     }
 };
 
@@ -40,7 +42,7 @@ TEST(TestHacker, str1)
 
     int r = hacker_line(str);
 
-    CHECK_EQUAL(0, r);
+    CHECK_EQUAL(8, r);
     STRCMP_EQUAL(expected, str);
 }
 
@@ -51,7 +53,7 @@ TEST(TestHacker, str2)
 
     int r = hacker_line(str);
 
-    CHECK_EQUAL(0, r);
+    CHECK_EQUAL(4, r);
     STRCMP_EQUAL(expected, str);
 }
 
@@ -62,7 +64,7 @@ TEST(TestHacker, str3)
 
     int r = hacker_line(str);
 
-    CHECK_EQUAL(0, r);
+    CHECK_EQUAL(4, r);
     STRCMP_EQUAL(expected, str);
 }
 
@@ -72,7 +74,7 @@ TEST(TestHacker, boundries)
 
     int r = hacker_line(str + 1);
 
-    CHECK_EQUAL(0, r);
+    CHECK_EQUAL(4, r);
     CHECK_EQUAL(0, str[0]);
     CHECK_EQUAL(0, str[6]);
     CHECK_EQUAL('e', str[7]);
@@ -130,7 +132,7 @@ TEST(TestHacker, fifo)
 {
     fifo_push_string(&fifo_src, "Load-load load me!");
     int r = hacker_fifo(&fifo_src, &fifo_dest);
-    CHECK_EQUAL(0, r);
+    CHECK_EQUAL(7, r);
 
     char * str = fifo_pop_string(&fifo_dest);
     STRCMP_EQUAL("L04d-l04d l04d m3!", str);
