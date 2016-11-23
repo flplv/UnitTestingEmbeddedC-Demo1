@@ -1,8 +1,9 @@
 #include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
 
 extern "C"
 {
-    #include "log_mock.h"
+    #include "log.h"
 }
 
 TEST_GROUP(Log)
@@ -13,19 +14,18 @@ TEST_GROUP(Log)
 
     void teardown ()
     {
-        log_mock_clear();
+        mock().checkExpectations();
+        mock().clear();
     }
 };
 
 TEST(Log, periodic)
 {
-    int l = __LINE__; log_error("oops!");
-    STRCMP_NOCASE_CONTAINS("Error", log_mock_last_error());
-    STRCMP_NOCASE_CONTAINS("oops!", log_mock_last_error());
-    STRCMP_NOCASE_CONTAINS(__FILE__, log_mock_last_error());
-
-    char line[5];
-    snprintf(line, 5, ":%d", l);
-    STRCMP_NOCASE_CONTAINS(line, log_mock_last_error());
+    mock().expectOneCall("_platform_log")
+            .withParameter("msg", "Error: oops!")
+            .withParameter("file", __FILE__)
+            .withParameter("line", __LINE__ + 2);
+    /* Do not remove this line, nor add any extra line before log_error */
+    log_error("oops!");
 }
 

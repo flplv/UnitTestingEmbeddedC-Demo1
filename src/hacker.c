@@ -17,7 +17,7 @@ static const struct hackable_char hacking_table[] = {
         {0, 0} /* This is a terminator */
 };
 
-static char hack_char(char c, bool * changed)
+static char hack_char(char c)
 {
     const struct hackable_char * ref = &hacking_table[0];
 
@@ -29,11 +29,9 @@ static char hack_char(char c, bool * changed)
         if (r->before != tolower(c))
             continue;
 
-        if (changed) *changed = true;
         return r->after;
     }
 
-    if (changed) *changed = false;
     return c;
 }
 
@@ -41,16 +39,13 @@ int hacker_line(char * str_to_hackerize)
 {
     check_ptr(str_to_hackerize, -1);
 
-    int count = 0;
-    bool changed;
     size_t n = strlen(str_to_hackerize);
 
     while (n--) {
-        str_to_hackerize[n] = hack_char(str_to_hackerize[n], &changed);
-        count = changed ? count + 1 : count;
+        str_to_hackerize[n] = hack_char(str_to_hackerize[n]);
     }
 
-    return count;
+    return 0;
 }
 
 int hacker_fifo(ring_fifo_t * src, ring_fifo_t * dest)
@@ -60,17 +55,14 @@ int hacker_fifo(ring_fifo_t * src, ring_fifo_t * dest)
     check_assert(ring_fifo_element_size(src) == 1, -2);
     check_assert(ring_fifo_element_size(dest) == 1, -2);
 
-    int count = 0;
     size_t n = ring_fifo_count(src);
 
     while (n--) {
         char c;
-        bool changed;
         bool success = ring_fifo_pop(src, (uint8_t *)&c);
         check_assert(success, -3);
 
-        c = hack_char(c, &changed);
-        count = changed ? count + 1 : count;
+        c = hack_char(c);
 
         success = ring_fifo_push(dest, (const uint8_t *)&c);
         check_assert(success, -3);
@@ -79,5 +71,5 @@ int hacker_fifo(ring_fifo_t * src, ring_fifo_t * dest)
             break;
     }
 
-    return count;
+    return 0;
 }

@@ -6,7 +6,6 @@ extern "C"
     #include <string.h>
     #include "ring_fifo.h"
     #include "hacker.h"
-    #include "log_mock.h"
 }
 
 ring_fifo_t fifo_src;
@@ -27,10 +26,9 @@ TEST_GROUP(TestHacker)
 
     void teardown()
     {
-
+        mock().checkExpectations();
         ring_fifo_deinit(&fifo_src);
         ring_fifo_deinit(&fifo_dest);
-        log_mock_clear();
         mock().clear();
     }
 };
@@ -42,7 +40,7 @@ TEST(TestHacker, str1)
 
     int r = hacker_line(str);
 
-    CHECK_EQUAL(8, r);
+    CHECK_EQUAL(0, r);
     STRCMP_EQUAL(expected, str);
 }
 
@@ -53,7 +51,7 @@ TEST(TestHacker, str2)
 
     int r = hacker_line(str);
 
-    CHECK_EQUAL(4, r);
+    CHECK_EQUAL(0, r);
     STRCMP_EQUAL(expected, str);
 }
 
@@ -64,7 +62,7 @@ TEST(TestHacker, str3)
 
     int r = hacker_line(str);
 
-    CHECK_EQUAL(4, r);
+    CHECK_EQUAL(0, r);
     STRCMP_EQUAL(expected, str);
 }
 
@@ -74,7 +72,7 @@ TEST(TestHacker, boundries)
 
     int r = hacker_line(str + 1);
 
-    CHECK_EQUAL(4, r);
+    CHECK_EQUAL(0, r);
     CHECK_EQUAL(0, str[0]);
     CHECK_EQUAL(0, str[6]);
     CHECK_EQUAL('e', str[7]);
@@ -91,6 +89,10 @@ TEST(TestHacker, invalid_arg)
 
 TEST(TestHacker, invalid_arg2)
 {
+    mock().expectOneCall("_platform_log")
+            .withParameter("msg", "Error: Invalid Pointer")
+            .ignoreOtherParameters();
+
     int r = hacker_line(NULL);
 
     CHECK_EQUAL(-1, r);
@@ -132,10 +134,50 @@ TEST(TestHacker, fifo)
 {
     fifo_push_string(&fifo_src, "Load-load load me!");
     int r = hacker_fifo(&fifo_src, &fifo_dest);
-    CHECK_EQUAL(7, r);
+    CHECK_EQUAL(0, r);
 
     char * str = fifo_pop_string(&fifo_dest);
     STRCMP_EQUAL("L04d-l04d l04d m3!", str);
 
     free (str);
 }
+
+TEST(TestHacker, fifo_invalid_args)
+{
+    mock().expectNCalls(3, "_platform_log")
+            .withParameter("msg", "Error: Invalid Pointer")
+            .ignoreOtherParameters();
+
+    int r = hacker_fifo(NULL, NULL);
+    CHECK_EQUAL(-1, r);
+
+    r = hacker_fifo(&fifo_src, NULL);
+    CHECK_EQUAL(-1, r);
+
+    r = hacker_fifo(NULL, &fifo_dest);
+    CHECK_EQUAL(-1, r);
+}
+
+
+TEST(TestHacker, fifo_invalid_fifo_element_size)
+{
+    ring_fifo_t fifo;
+    ring_fifo_init_buffer(&fifo, buffer_src, 10, 2);
+
+    mock().expectOneCall("_platform_log")
+            .withParameter("msg", "Error: Assertion failed: ring_fifo_element_size(src) == 1")
+            .ignoreOtherParameters();
+
+    int r = hacker_fifo(&fifo, &fifo);
+    CHECK_EQUAL(-2, r);
+}
+
+TEST(TestHacker, fifo_empty)
+{
+    ring_fifo_t fifo;
+    ring_fifo_init_buffer(&fifo, buffer_src, 10, 1);
+
+    int r = hacker_fifo(&fifo, &fifo);
+    CHECK_EQUAL(0, r);
+}
+

@@ -3,7 +3,6 @@
 #include "ring_fifo.h"
 #include "serial.h"
 #include "hacker.h"
-#include "leds.h"
 
 static ring_fifo_t inward;
 static ring_fifo_t outward;
@@ -56,10 +55,8 @@ static void pop_fifo(ring_fifo_t* f)
 
 void echo_periodic()
 {
-    int n = hacker_fifo(&inward, &outward);
+    hacker_fifo(&inward, &outward);
     pop_fifo(&outward);
-    while (n--)
-        leds_toggle();
 }
 
 //Funciton optimized to the header

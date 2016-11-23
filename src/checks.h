@@ -13,7 +13,7 @@
  * check_assert
  * will check if `p` solves to false and will return the next argument.
  */
-#define check_assert(p, ...) do {if (!(p)) {log_error("Assertion failed"); return __VA_ARGS__;}} while(0)
+#define check_assert(p, ...) do {if (!(p)) {log_error("Assertion failed: " #p); return __VA_ARGS__;}} while(0)
 
 
 #endif /* SRC_CHECKS_H_ */
