@@ -12,11 +12,14 @@ msp430_deploy:
 tests:
 	make -f MakeTests.mk V=${V} all
 	
+tests_coverage:
+	make -f MakeTests.mk V=${V} coverage
+	
 clean:	
 	make -f MakeMsp430.mk V=${V} clean
 	make -f MakeTests.mk V=${V} clean
+	make -f MakeTests.mk V=${V} coverage_clean
 	@rm -rf lib objs
 	
-
 # To open msp430 serial:
 # miniterm.py --eol 'LF'  /dev/ttyACM0 9600

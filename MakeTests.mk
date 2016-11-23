@@ -37,3 +37,14 @@ CPPUTEST_WARNINGFLAGS = -Wall -Wextra -Wshadow -Wswitch-default -Wswitch-enum -W
 ## The real work ##
 # including this file that will use configuration and have the make rules.
 include $(CPPUTEST_HOME)/build/MakefileWorker.mk
+
+# Coverage Report rules #
+coverage: all
+	$(SILENCE)lcov --capture --directory objs/tests/src --output-file coverage.info
+	$(SILANCE)genhtml coverage.info --output-directory coverage
+	@echo
+	@echo "Written coverage report to coverage/index.html"
+	@echo
+	
+coverage_clean:
+	rm -rf coverage coverage.info

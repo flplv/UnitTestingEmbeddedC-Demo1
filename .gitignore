@@ -12,3 +12,7 @@ turma-piloto_tests
 
 # Ignore CppUTest
 cpputest
+
+# Ignore coverage files
+coverage.info
+coverage

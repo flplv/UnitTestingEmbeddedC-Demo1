@@ -1,6 +1,6 @@
 #include <CppUTestExt/MockSupport.h>
 
-extern "C" void leds_toggle (int j)
+extern "C" void leds_toggle ()
 {
     mock().actualCall("leds_toggle");
 }
